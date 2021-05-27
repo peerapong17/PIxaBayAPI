@@ -36,15 +36,25 @@ const Search = () => {
     }
 
     useEffect(() => {
-        axios.get(`${state.apiUrl}/?key=${state.apiKey}&q=${state.searchText}&image_type=photo&per_page=${state.amount}&safesearch=true`)
-            .then(res => setState(prevValue => {
-                console.log(res.data.hits)
+        if (state.searchText) {
+            axios.get(`${state.apiUrl}/?key=${state.apiKey}&q=${state.searchText}&image_type=photo&per_page=${state.amount}&safesearch=true`)
+                .then(res => setState(prevValue => {
+                    console.log(res.data.hits)
+                    return {
+                        ...prevValue,
+                        images: res.data.hits
+                    }
+                }))
+                .catch(err => console.log(err))
+        } else {
+            setState(prevValue => {
                 return {
                     ...prevValue,
-                    images: res.data.hits
+                    images: []
                 }
-            }))
-            .catch(err => console.log(err))
+            })
+        }
+
     }, [state.searchText, state.amount]);
 
     return <div>
@@ -72,10 +82,8 @@ const Search = () => {
                 <MenuItem value={30}>{30}</MenuItem>
             </Select>
         </FormControl>
-        <br/>
-        {state.images.map((image)=>
-            <ImageResult Image={image.largeImageURL} Tags={image.tags}/>
-        )}
+        <br />
+        <ImageResult images={state.images} />
     </div>
 }
 
